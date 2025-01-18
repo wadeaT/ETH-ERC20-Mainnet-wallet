@@ -25,10 +25,11 @@
     "web3": "^4.3.0"
   },
   "devDependencies": {
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "@types/node": "^22.10.7",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.0.4",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17"
   }
 }
