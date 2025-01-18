@@ -2,6 +2,7 @@
   "name": "eth-wallet-hub",
   "version": "0.1.0",
   "private": true,
+  "_comment": "package.json file",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

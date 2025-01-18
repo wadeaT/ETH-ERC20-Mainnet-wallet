@@ -1,4 +1,5 @@
-/*'use client'
+// src/app/ClientProvider.js
+'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -12,8 +13,8 @@ export default function ClientProvider({ children }) {
     </QueryClientProvider>
   )
 }
-*/
 
+/*
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -42,4 +43,4 @@ export default function ClientProvider({ children }) {
       {mounted ? children : null}
     </QueryClientProvider>
   );
-}
+}*/

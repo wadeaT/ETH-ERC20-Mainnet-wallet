@@ -1,3 +1,4 @@
+// src/app/dashboard/send/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -255,47 +256,47 @@ export default function SendPage() {
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-white mb-8">Send {selectedToken.symbol}</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-8">Send {selectedToken.symbol}</h1>
 
-      <Card className="bg-gray-800/50 backdrop-blur-sm p-6">
+      <Card className="bg-card/50 backdrop-blur-sm p-6">
         <form onSubmit={handleSend} className="space-y-6">
           {/* Token Selection */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Select Token</label>
+            <label className="block text-sm text-muted-foreground mb-1">Select Token</label>
             <div className="relative">
               <button
                 type="button"
-                className="w-full flex items-center justify-between bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white"
+                className="w-full flex items-center justify-between bg-muted/50 border border-input rounded-lg px-4 py-3 text-foreground"
                 onClick={() => setShowTokenSelect(!showTokenSelect)}
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
                     <span>{selectedToken.icon}</span>
                   </div>
                   <span>{selectedToken.symbol}</span>
                 </div>
-                <ChevronDown size={20} className="text-gray-400" />
+                <ChevronDown size={20} className="text-muted-foreground" />
               </button>
 
               {showTokenSelect && (
-                <div className="absolute w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
+                <div className="absolute w-full mt-2 bg-card border border-input rounded-lg shadow-lg z-10">
                   <div className="p-2 space-y-1">
                     {availableTokens.map(token => (
                       <button
                         key={token.id}
                         type="button"
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
                         onClick={() => {
                           setSelectedToken(token);
                           setShowTokenSelect(false);
                           updateUsdValue(amount);
                         }}
                       >
-                        <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
                           <span>{token.icon}</span>
                         </div>
-                        <span className="text-white">{token.symbol}</span>
-                        <span className="text-gray-400 text-sm ml-auto">
+                        <span className="text-foreground">{token.symbol}</span>
+                        <span className="text-muted-foreground text-sm ml-auto">
                           Balance: {formatBalance(token.balance, token.decimals)}
                         </span>
                       </button>
@@ -308,7 +309,7 @@ export default function SendPage() {
 
           {/* Address Input */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-muted-foreground mb-1">
               Recipient Address
             </label>
             <input
@@ -316,13 +317,13 @@ export default function SendPage() {
               value={toAddress}
               onChange={(e) => setToAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-muted/50 border border-input rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
             />
           </div>
 
           {/* Amount Input with USD Value */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Amount</label>
+            <label className="block text-sm text-muted-foreground mb-1">Amount</label>
             <div className="space-y-2">
               <div className="relative">
                 <input
@@ -332,12 +333,12 @@ export default function SendPage() {
                   placeholder="0.0"
                   min="0"
                   step="any"
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-muted/50 border border-input rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
                 />
                 <button
                   type="button"
                   onClick={() => handleAmountChange(selectedToken.balance)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-400 hover:text-blue-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-primary hover:text-primary/80"
                 >
                   Max
                 </button>
@@ -345,10 +346,10 @@ export default function SendPage() {
               
               {/* USD Value Display */}
               <div className="flex justify-between items-center px-1">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   ≈ ${usdValue} USD
                 </p>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Balance: {formatBalance(selectedToken.balance, selectedToken.decimals)} {selectedToken.symbol}
                   {prices && selectedToken.balance && ` (≈ ${usdValue})`}
                 </p>
@@ -358,7 +359,7 @@ export default function SendPage() {
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-400">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">
               {error}
             </div>
           )}
@@ -367,11 +368,11 @@ export default function SendPage() {
           <Button
             type="submit"
             disabled={isLoading || !amount || !toAddress}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
                 <span>Sending...</span>
               </div>
             ) : (

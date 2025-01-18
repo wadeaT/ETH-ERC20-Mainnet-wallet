@@ -1,3 +1,4 @@
+// src/app/dashboard/receive/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -24,27 +25,17 @@ export default function ReceivePage() {
           return;
         }
 
-        console.log('Fetching for username:', username); // Debug log
-
         const userDoc = await getDoc(doc(db, 'users', username));
         if (!userDoc.exists()) {
-          console.log('No document found for username:', username); // Debug log
           return;
         }
 
         const userData = userDoc.data();
-        console.log('User data:', userData); // Debug log
-
-        // Check for wallet address in different possible locations in the document
         const address = userData.wallet?.address || userData.ethAddress || userData.address;
         
         if (address) {
-          console.log('Found address:', address); // Debug log
           setEthAddress(address);
-          // Also update localStorage
           window.localStorage.setItem('walletAddress', address);
-        } else {
-          console.log('No address found in document'); // Debug log
         }
       } catch (error) {
         console.error('Error fetching wallet:', error);
@@ -69,19 +60,19 @@ export default function ReceivePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-white mb-8">Receive Tokens</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-8">Receive Tokens</h1>
 
-      <Card className="bg-gray-800/50 backdrop-blur-sm p-8">
+      <Card className="bg-card/50 backdrop-blur-sm p-8">
         <div className="flex flex-col items-center space-y-6">
           {ethAddress && (
-            <div className="bg-white p-4 rounded-lg">
+            <div className="bg-background p-4 rounded-lg">
               <QRCodeSVG 
                 value={ethAddress}
                 size={200}
@@ -93,11 +84,11 @@ export default function ReceivePage() {
 
           {/* Address Display */}
           <div className="w-full">
-            <p className="text-gray-400 text-sm mb-2 text-center">
+            <p className="text-muted-foreground text-sm mb-2 text-center">
               Your ETH Address
             </p>
-            <div className="flex items-center gap-2 bg-gray-700/50 rounded-lg p-3">
-              <code className="text-white flex-1 text-center break-all">
+            <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-3">
+              <code className="text-foreground flex-1 text-center break-all">
                 {ethAddress || 'No address found'}
               </code>
               {ethAddress && (
@@ -105,22 +96,22 @@ export default function ReceivePage() {
                   variant="ghost"
                   size="sm"
                   onClick={handleCopy}
-                  className="text-gray-400 hover:text-white"
+                  className="text-muted-foreground hover:text-foreground"
                 >
                   <Copy size={20} />
                 </Button>
               )}
             </div>
             {copied && (
-              <p className="text-green-400 text-sm text-center mt-2">
+              <p className="text-success text-sm text-center mt-2">
                 Address copied to clipboard!
               </p>
             )}
           </div>
 
           {/* Network Info */}
-          <div className="w-full bg-gray-700/30 rounded-lg p-4 text-sm">
-            <p className="text-gray-400 text-center">
+          <div className="w-full bg-muted/30 rounded-lg p-4 text-sm">
+            <p className="text-muted-foreground text-center">
               Send only ETH and ERC-20 tokens to this address. Sending other types of tokens may result in permanent loss.
             </p>
           </div>
@@ -128,15 +119,15 @@ export default function ReceivePage() {
       </Card>
 
       {/* Network Selection */}
-      <Card className="bg-gray-800/50 backdrop-blur-sm p-6">
+      <Card className="bg-card/50 backdrop-blur-sm p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-white font-medium">Network</h3>
-            <p className="text-gray-400 text-sm">Ethereum Mainnet</p>
+            <h3 className="text-foreground font-medium">Network</h3>
+            <p className="text-muted-foreground text-sm">Ethereum Mainnet</p>
           </div>
           <Button
             variant="ghost"
-            className="text-blue-400 hover:text-blue-300"
+            className="text-primary hover:text-primary/80"
           >
             Change
           </Button>

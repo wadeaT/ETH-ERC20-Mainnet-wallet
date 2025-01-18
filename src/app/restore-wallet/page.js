@@ -1,3 +1,4 @@
+// src/app/restore-wallet/page.js
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
+import { CommonHeader } from '@/components/layout/CommonHeader';
 
 export default function RestoreWallet() {
   const router = useRouter();
@@ -62,27 +64,17 @@ export default function RestoreWallet() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] p-4">
-      <header className="flex items-center justify-between max-w-4xl mx-auto mb-12">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-            <span className="text-white">Ξ</span>
-          </div>
-          <h1 className="text-xl font-bold text-white">ETH Wallet Manager</h1>
-        </div>
-        <Link href="/" className="text-gray-400 hover:text-white">
-          ← Back
-        </Link>
-      </header>
+    <div className="min-h-screen bg-background p-4">
+      <CommonHeader />
 
       <main className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-blue-400 mb-8 text-center">
           Restore Your Wallet
         </h2>
 
-        <Card className="bg-gray-800/50 backdrop-blur-sm p-8">
+        <Card className="bg-card/50 backdrop-blur-sm p-8">
           <div className="mb-6 p-4 bg-blue-900/20 rounded-lg">
-            <p className="text-gray-300 text-sm">
+            <p className="text-muted-foreground text-sm">
               Enter your recovery phrase (12 or 24 words) to restore your wallet. You don't need an account - just your recovery phrase.
             </p>
           </div>
@@ -92,7 +84,7 @@ export default function RestoreWallet() {
               value={recoveryPhrase}
               onChange={(e) => setRecoveryPhrase(e.target.value)}
               placeholder="Enter your recovery phrase..."
-              className="w-full h-32 bg-gray-700/50 border border-gray-600 rounded-lg p-4 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full h-32 bg-card/50 border border-border rounded-lg p-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500"
             />
 
             {error && (
@@ -111,7 +103,7 @@ export default function RestoreWallet() {
               <Button
                 variant="secondary"
                 onClick={handlePaste}
-                className="flex-1 bg-gray-700 hover:bg-gray-600"
+                className="flex-1 bg-card hover:bg-card/80"
               >
                 📋 Paste Phrase
               </Button>
@@ -132,7 +124,7 @@ export default function RestoreWallet() {
             <span className="text-red-400">⚠️</span>
             <div>
               <h3 className="text-red-400 font-medium mb-2">Security Warning</h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Never share your recovery phrase with anyone. We will never ask for it through
                 email, phone calls, or social media. Only enter your recovery phrase in the official
                 ETH Wallet app.

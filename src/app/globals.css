@@ -1,21 +1,52 @@
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #ffffff;
+    --card-foreground: #171717;
+    --popover: #ffffff;
+    --popover-foreground: #171717;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #f3f4f6;
+    --secondary-foreground: #171717;
+    --border: #e5e7eb;
+    --input: #e5e7eb;
+    --ring: #3b82f6;
+    --muted: #f3f4f6;
+    --muted-foreground: #6b7280;
+  }
+
+  .dark {
+    --background: #0B1120;
     --foreground: #ededed;
+    --card: #1f2937;
+    --card-foreground: #ededed;
+    --popover: #1f2937;
+    --popover-foreground: #ededed;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #374151;
+    --secondary-foreground: #ededed;
+    --border: #374151;
+    --input: #374151;
+    --ring: #3b82f6;
+    --muted: #374151;
+    --muted-foreground: #9ca3af;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }

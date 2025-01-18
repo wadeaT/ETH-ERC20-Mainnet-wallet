@@ -1,4 +1,4 @@
-/*{
+{
     "compilerOptions": {
       "baseUrl": ".",
       "paths": {
@@ -7,8 +7,8 @@
       "jsx": "preserve"
     }
   }
-  */
-
+  
+/*
   {
     "compilerOptions": {
       "baseUrl": ".",
@@ -20,4 +20,4 @@
       "target": "es6",
       "types": ["node"]
     }
-}
+}*/

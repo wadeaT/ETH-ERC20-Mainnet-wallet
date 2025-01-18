@@ -1,3 +1,4 @@
+// src/app/mainnet/page.js
 'use client';
 
 import { useState } from 'react';
@@ -5,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { TokenPriceGrid } from '@/components/TokenPriceGrid';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
+import { CommonHeader } from '@/components/layout/CommonHeader';
 import Link from 'next/link';
 
 const queryClient = new QueryClient();
@@ -14,29 +16,18 @@ export default function MainnetPage() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main className="min-h-screen bg-[#0B1120] text-white">
+      <main className="min-h-screen bg-background text-foreground">
         {/* Landing Section */}
         <section className="min-h-screen flex flex-col items-center justify-center px-4 relative">
-          {/* Header */}
-          <header className="absolute top-0 left-0 right-0 flex justify-between items-center p-6">
-            <h1 className="text-2xl font-bold">ETH Wallet Hub</h1>
-            {!isConnected && (
-              <Button
-                variant="primary"
-                className="bg-blue-600 hover:bg-blue-700"
-                onClick={() => setIsConnected(true)}
-              >
-                Connect Wallet
-              </Button>
-            )}
-          </header>
+          {/* Replace header with CommonHeader */}
+          <CommonHeader showBackButton={false} />
 
           {/* Landing Content */}
           <div className="text-center space-y-6">
             <h2 className="text-4xl font-bold mb-4">
               Connect your wallet to view your assets
             </h2>
-            <p className="text-gray-400 text-lg mb-8">
+            <p className="text-muted-foreground text-lg mb-8">
               Connect your wallet to see your ETH and token balances
             </p>
             <Button
@@ -73,42 +64,42 @@ export default function MainnetPage() {
             <div className="space-y-6 max-w-7xl mx-auto">
               {/* Balance Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-gray-800/50 backdrop-blur-sm p-4">
-                  <h3 className="text-gray-400 text-sm">Total Balance</h3>
-                  <p className="text-2xl font-bold text-white">$0.00</p>
+                <Card className="bg-card/50 backdrop-blur-sm p-4">
+                  <h3 className="text-muted-foreground text-sm">Total Balance</h3>
+                  <p className="text-2xl font-bold text-foreground">$0.00</p>
                   <p className="text-sm text-green-400">+0.00%</p>
                 </Card>
                 
-                <Card className="bg-gray-800/50 backdrop-blur-sm p-4">
-                  <h3 className="text-gray-400 text-sm">ETH Balance</h3>
-                  <p className="text-2xl font-bold text-white">0.00 ETH</p>
-                  <p className="text-sm text-white">$0.00</p>
+                <Card className="bg-card/50 backdrop-blur-sm p-4">
+                  <h3 className="text-muted-foreground text-sm">ETH Balance</h3>
+                  <p className="text-2xl font-bold text-foreground">0.00 ETH</p>
+                  <p className="text-sm text-foreground">$0.00</p>
                 </Card>
                 
-                <Card className="bg-gray-800/50 backdrop-blur-sm p-4">
-                  <h3 className="text-gray-400 text-sm">Token Balance</h3>
-                  <p className="text-2xl font-bold text-white">0 Tokens</p>
-                  <p className="text-sm text-white">$0.00</p>
+                <Card className="bg-card/50 backdrop-blur-sm p-4">
+                  <h3 className="text-muted-foreground text-sm">Token Balance</h3>
+                  <p className="text-2xl font-bold text-foreground">0 Tokens</p>
+                  <p className="text-sm text-foreground">$0.00</p>
                 </Card>
                 
-                <Card className="bg-gray-800/50 backdrop-blur-sm p-4">
-                  <h3 className="text-gray-400 text-sm">Gas Price</h3>
-                  <p className="text-2xl font-bold text-white">0 Gwei</p>
-                  <p className="text-sm text-white">≈ $0.00 / transfer</p>
+                <Card className="bg-card/50 backdrop-blur-sm p-4">
+                  <h3 className="text-muted-foreground text-sm">Gas Price</h3>
+                  <p className="text-2xl font-bold text-foreground">0 Gwei</p>
+                  <p className="text-sm text-foreground">≈ $0.00 / transfer</p>
                 </Card>
               </div>
 
               {/* Token List */}
-              <Card className="bg-gray-800/50 backdrop-blur-sm">
+              <Card className="bg-card/50 backdrop-blur-sm">
                 <TokenPriceGrid />
               </Card>
             </div>
           ) : (
             <div className="text-center py-20">
-              <h2 className="text-2xl font-bold text-white mb-4">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
                 Connect your wallet to view your assets
               </h2>
-              <p className="text-gray-400 mb-8">
+              <p className="text-muted-foreground mb-8">
                 Connect your wallet to see your ETH and token balances
               </p>
               <Button

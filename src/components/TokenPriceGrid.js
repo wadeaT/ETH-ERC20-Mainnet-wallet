@@ -1,4 +1,4 @@
-// TokenPriceGrid.js
+// src/components/TokenPriceGrid.js
 import { useQuery } from '@tanstack/react-query';
 import { fetchTokenPrices } from '@/lib/api';
 import { Card } from '@/components/ui/Card';

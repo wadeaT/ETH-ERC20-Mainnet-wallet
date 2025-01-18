@@ -1,3 +1,4 @@
+// src/app/forgot-password/page.js
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { CommonHeader } from '@/components/layout/CommonHeader';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -44,30 +46,19 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] p-4">
-      {/* Header */}
-      <header className="flex items-center justify-between max-w-md mx-auto mb-12">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white">Ξ</span>
-          </div>
-          <h1 className="text-xl font-bold text-white">ETH Wallet Manager</h1>
-        </div>
-        <Link href="/connect-wallet" className="text-gray-400 hover:text-white">
-          ← Back to Login
-        </Link>
-      </header>
+    <div className="min-h-screen bg-background p-4">
+      <CommonHeader />
 
       {/* Main Content */}
       <main className="max-w-md mx-auto">
-        <Card className="bg-gray-800/50 backdrop-blur-sm p-8">
+        <Card className="bg-card/50 backdrop-blur-sm p-8">
           <h2 className="text-2xl font-bold text-blue-400 mb-8 text-center">
             Reset Your Password
           </h2>
 
           {/* Info Text */}
           <div className="mb-6 p-4 bg-blue-900/20 rounded-lg">
-            <p className="text-gray-300 text-sm">
+            <p className="text-muted-foreground text-sm">
               Enter your email address below and we'll send you instructions to reset your password.
             </p>
           </div>
@@ -92,7 +83,7 @@ export default function ForgotPassword() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Email Address
               </label>
               <input
@@ -102,11 +93,11 @@ export default function ForgotPassword() {
                   setEmail(e.target.value);
                   setError('');
                 }}
-                className={`w-full bg-gray-700/50 border ${
+                className={`w-full bg-card/50 border ${
                   error && !email.trim() 
                     ? 'border-red-500' 
-                    : 'border-gray-600'
-                } rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500`}
+                    : 'border-border'
+                } rounded-md px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500`}
                 placeholder="Enter your email"
                 required
               />
@@ -122,7 +113,7 @@ export default function ForgotPassword() {
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
                   <span>Sending...</span>
                 </div>
               ) : (
@@ -138,7 +129,7 @@ export default function ForgotPassword() {
             <span className="text-blue-400">ℹ️</span>
             <div>
               <h3 className="text-blue-400 font-medium mb-2">Next Steps</h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-muted-foreground text-sm">
                 After submitting, check your email (including spam folder) for reset instructions.
                 The reset link will expire after 1 hour for security reasons.
               </p>
@@ -148,12 +139,12 @@ export default function ForgotPassword() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-md mx-auto mt-12 py-4 border-t border-gray-800">
-        <div className="flex justify-between text-sm text-gray-500">
+      <footer className="max-w-md mx-auto mt-12 py-4 border-t border-border">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <p>ETH Wallet Manager © 2024</p>
           <div className="space-x-4">
-            <Link href="/terms" className="hover:text-gray-300">Terms</Link>
-            <Link href="/privacy" className="hover:text-gray-300">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
           </div>
         </div>
       </footer>

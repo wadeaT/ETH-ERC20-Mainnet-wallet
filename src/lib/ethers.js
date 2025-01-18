@@ -1,4 +1,4 @@
-/*// lib/ethers.js
+// lib/ethers.js
 import { ethers } from 'ethers';
 
 let provider = null;
@@ -108,7 +108,9 @@ export const sendTransaction = async (privateKey, toAddress, amount, token) => {
     console.error('Error sending transaction:', error);
     throw error;
   }
-};*/
+};
+
+/*
 // lib/ethers.js
 import { ethers } from 'ethers';
 
@@ -222,4 +224,4 @@ export const sendTransaction = async (privateKey, toAddress, amount, token) => {
     console.error('Error sending transaction:', error);
     throw error;
   }
-};
+};*/

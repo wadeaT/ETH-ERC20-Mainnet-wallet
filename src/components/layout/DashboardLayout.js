@@ -1,12 +1,17 @@
+// src/components/layout/DashboardLayout.js
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Home, Send, Inbox, Repeat, History, Settings, LogOut } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 
 export function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navItems = [
     { name: 'Overview', path: '/dashboard', icon: Home },
@@ -17,17 +22,34 @@ export function DashboardLayout({ children }) {
     { name: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];
 
+  const handleLogout = async () => {
+    try {
+      // Sign out from Firebase
+      await signOut(auth);
+      
+      // Clear local storage
+      window.localStorage.removeItem('walletAddress');
+      window.localStorage.removeItem('privateKey');
+      window.localStorage.removeItem('username');
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#0B1120] flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-gray-800 hidden md:flex flex-col">
+      <aside className="w-64 border-r border-border hidden md:flex flex-col">
         {/* Logo */}
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-border">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white">Ξ</span>
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-primary-foreground">Ξ</span>
             </div>
-            <span className="text-xl font-bold text-white">ETH Wallet Hub</span>
+            <span className="text-xl font-bold text-foreground">ETH Wallet Hub</span>
           </Link>
         </div>
 
@@ -42,8 +64,8 @@ export function DashboardLayout({ children }) {
                     <div
                       className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                         pathname === item.path
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                       }`}
                     >
                       <Icon size={20} />
@@ -56,9 +78,16 @@ export function DashboardLayout({ children }) {
           </ul>
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-gray-800">
-          <button className="flex items-center gap-3 text-gray-400 hover:text-white w-full px-4 py-2 rounded-lg transition-colors hover:bg-gray-800">
+        {/* Bottom Actions */}
+        <div className="p-4 border-t border-border space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-muted-foreground hover:text-foreground w-full px-4 py-2 rounded-lg transition-colors hover:bg-secondary"
+          >
             <LogOut size={20} />
             <span>Logout</span>
           </button>
@@ -66,17 +95,24 @@ export function DashboardLayout({ children }) {
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-[#0B1120] border-b border-gray-800 z-50">
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
         <div className="flex items-center justify-between p-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white">Ξ</span>
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-primary-foreground">Ξ</span>
             </div>
-            <span className="text-xl font-bold text-white">ETH Wallet Hub</span>
+            <span className="text-xl font-bold text-foreground">ETH Wallet Hub</span>
           </Link>
-          <Button variant="ghost" size="sm">
-            <LogOut size={20} className="text-gray-400" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleLogout}
+            >
+              <LogOut size={20} className="text-muted-foreground hover:text-foreground" />
+            </Button>
+          </div>
         </div>
         
         {/* Mobile Navigation */}
@@ -88,8 +124,8 @@ export function DashboardLayout({ children }) {
                 <div
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap ${
                     pathname === item.path
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                   }`}
                 >
                   <Icon size={20} />

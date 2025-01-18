@@ -1,3 +1,4 @@
+// src/components/layout/ui/Card.js
 'use client';
 
 import React from 'react';

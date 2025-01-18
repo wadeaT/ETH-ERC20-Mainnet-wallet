@@ -1,3 +1,4 @@
+// src/app/dashboard/swap/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -121,46 +122,46 @@ export default function SwapPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-white mb-8">Swap Tokens</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-8">Swap Tokens</h1>
 
-      <Card className="bg-gray-800/50 backdrop-blur-sm p-6 space-y-6">
+      <Card className="bg-card/50 backdrop-blur-sm p-6 space-y-6">
         {/* From Token */}
         <div className="space-y-2">
-          <label className="block text-sm text-gray-400">From</label>
+          <label className="block text-sm text-muted-foreground">From</label>
           <div className="relative">
             <input
               type="number"
               value={fromAmount}
               onChange={(e) => setFromAmount(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-muted/50 border border-input rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
               placeholder="0.0"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <button 
-                className="flex items-center gap-2 px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600"
+                className="flex items-center gap-2 px-3 py-1 bg-muted rounded-lg hover:bg-muted/80"
                 onClick={() => setShowFromTokens(!showFromTokens)}
               >
-                <div className="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">{fromToken.icon}</span>
+                <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                  <span className="text-foreground text-sm">{fromToken.icon}</span>
                 </div>
-                <span className="text-white">{fromToken.symbol}</span>
-                <ChevronDown className="text-gray-400 w-4 h-4" />
+                <span className="text-foreground">{fromToken.symbol}</span>
+                <ChevronDown className="text-muted-foreground w-4 h-4" />
               </button>
 
               {showFromTokens && (
-                <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-input rounded-lg shadow-lg overflow-hidden z-10">
                   <div className="p-2 space-y-1">
                     {availableTokens.map(token => (
                       <button
                         key={token.id}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
                         onClick={() => {
                           setFromToken(token);
                           setShowFromTokens(false);
@@ -170,11 +171,11 @@ export default function SwapPage() {
                           }
                         }}
                       >
-                        <div className="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">{token.icon}</span>
+                        <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                          <span className="text-foreground text-sm">{token.icon}</span>
                         </div>
-                        <span className="text-white">{token.symbol}</span>
-                        <span className="text-gray-400 text-sm ml-auto">
+                        <span className="text-foreground">{token.symbol}</span>
+                        <span className="text-muted-foreground text-sm ml-auto">
                           {parseFloat(token.balance).toFixed(4)}
                         </span>
                       </button>
@@ -184,10 +185,10 @@ export default function SwapPage() {
               )}
             </div>
           </div>
-          <div className="flex justify-between text-sm text-gray-400">
+          <div className="flex justify-between text-sm text-muted-foreground">
             <span>Balance: {parseFloat(fromToken.balance).toFixed(6)} {fromToken.symbol}</span>
             <button 
-              className="text-blue-400 hover:text-blue-300"
+              className="text-primary hover:text-primary/80"
               onClick={() => setFromAmount(fromToken.balance)}
             >
               Max
@@ -199,54 +200,54 @@ export default function SwapPage() {
         <div className="flex justify-center">
           <button 
             onClick={handleSwapTokens}
-            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
+            className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
           >
-            <ArrowDownUp className="text-gray-400 w-5 h-5" />
+            <ArrowDownUp className="text-muted-foreground w-5 h-5" />
           </button>
         </div>
 
         {/* To Token */}
         <div className="space-y-2">
-          <label className="block text-sm text-gray-400">To</label>
+          <label className="block text-sm text-muted-foreground">To</label>
           <div className="relative">
             <input
               type="number"
               value={toAmount}
               readOnly
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-muted/50 border border-input rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
               placeholder="0.0"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <button 
-                className="flex items-center gap-2 px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600"
+                className="flex items-center gap-2 px-3 py-1 bg-muted rounded-lg hover:bg-muted/80"
                 onClick={() => setShowToTokens(!showToTokens)}
               >
-                <div className="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">{toToken.icon}</span>
+                <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                  <span className="text-foreground text-sm">{toToken.icon}</span>
                 </div>
-                <span className="text-white">{toToken.symbol}</span>
-                <ChevronDown className="text-gray-400 w-4 h-4" />
+                <span className="text-foreground">{toToken.symbol}</span>
+                <ChevronDown className="text-muted-foreground w-4 h-4" />
               </button>
 
               {showToTokens && (
-                <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-input rounded-lg shadow-lg overflow-hidden z-10">
                   <div className="p-2 space-y-1">
                     {destinationTokens
                       .filter(token => token.id !== fromToken.id)
                       .map(token => (
                         <button
                           key={token.id}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700"
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
                           onClick={() => {
                             setToToken(token);
                             setShowToTokens(false);
                           }}
                         >
-                          <div className="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm">{token.icon}</span>
+                          <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                            <span className="text-foreground text-sm">{token.icon}</span>
                           </div>
-                          <span className="text-white">{token.symbol}</span>
-                          <span className="text-gray-400 text-sm ml-auto">
+                          <span className="text-foreground">{token.symbol}</span>
+                          <span className="text-muted-foreground text-sm ml-auto">
                             {parseFloat(token.balance).toFixed(4)}
                           </span>
                         </button>
@@ -256,22 +257,22 @@ export default function SwapPage() {
               )}
             </div>
           </div>
-          <div className="flex justify-end text-sm text-gray-400">
+          <div className="flex justify-end text-sm text-muted-foreground">
             Balance: {parseFloat(toToken.balance).toFixed(6)} {toToken.symbol}
           </div>
         </div>
 
         {/* Exchange Info */}
         <div className="space-y-3 text-sm">
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>Exchange Rate</span>
             <span>1 {fromToken.symbol} = {(fromToken.price / toToken.price).toFixed(6)} {toToken.symbol}</span>
           </div>
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>Network Fee</span>
             <span>≈ $2.50</span>
           </div>
-          <div className="flex justify-between text-gray-400">
+          <div className="flex justify-between text-muted-foreground">
             <span>Minimum Received</span>
             <span>{(parseFloat(toAmount) * 0.995).toFixed(6)} {toToken.symbol}</span>
           </div>
@@ -281,7 +282,7 @@ export default function SwapPage() {
         <Button
           variant="primary"
           size="lg"
-          className="w-full bg-blue-600 hover:bg-blue-700"
+          className="w-full bg-primary hover:bg-primary/90"
           disabled={fromAmount === '0.0' || parseFloat(fromAmount) > parseFloat(fromToken.balance) || isSwapping}
           onClick={handleSwap}
         >
@@ -291,7 +292,7 @@ export default function SwapPage() {
         </Button>
 
         {swapError && (
-          <div className="mt-2 text-red-400 text-sm">
+          <div className="mt-2 text-destructive text-sm">
             {swapError}
           </div>
         )}

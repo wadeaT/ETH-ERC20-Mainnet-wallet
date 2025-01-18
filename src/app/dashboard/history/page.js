@@ -1,3 +1,4 @@
+// src/app/dashboard/history/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterType, setFilterType] = useState('all'); // 'all', 'in', 'out'
+  const [filterType, setFilterType] = useState('all');
   const [showFilter, setShowFilter] = useState(false);
 
   useEffect(() => {
@@ -75,7 +76,6 @@ export default function HistoryPage() {
           allTx = [...allTx, ...tokenTx];
         }
 
-        // Sort by date (newest first)
         allTx.sort((a, b) => b.date - a.date);
         setTransactions(allTx);
       } catch (error) {
@@ -104,7 +104,7 @@ export default function HistoryPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function HistoryPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-white">Transaction History</h1>
+        <h1 className="text-2xl font-bold text-foreground">Transaction History</h1>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-initial">
@@ -121,23 +121,23 @@ export default function HistoryPage() {
               placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 bg-gray-700/50 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full sm:w-64 bg-background/50 border border-input rounded-lg pl-10 pr-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
           </div>
           
           <div className="relative">
             <button 
-              className="p-2 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-400 hover:text-white"
+              className="p-2 bg-background/50 border border-input rounded-lg text-muted-foreground hover:text-foreground"
               onClick={() => setShowFilter(!showFilter)}
             >
               <Filter size={18} />
             </button>
             {showFilter && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-10">
                 <div className="p-2 space-y-1">
                   <button 
-                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'all' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'all' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
                     onClick={() => {
                       setFilterType('all');
                       setShowFilter(false);
@@ -146,7 +146,7 @@ export default function HistoryPage() {
                     All Transactions
                   </button>
                   <button 
-                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'in' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'in' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
                     onClick={() => {
                       setFilterType('in');
                       setShowFilter(false);
@@ -155,7 +155,7 @@ export default function HistoryPage() {
                     Incoming
                   </button>
                   <button 
-                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'out' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+                    className={`w-full text-left px-4 py-2 rounded ${filterType === 'out' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
                     onClick={() => {
                       setFilterType('out');
                       setShowFilter(false);
@@ -170,83 +170,83 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <Card className="bg-gray-800/50 backdrop-blur-sm overflow-hidden">
+      <Card className="bg-card/50 backdrop-blur-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left border-b border-gray-700">
-                <th className="p-4 text-gray-400 font-medium">Type</th>
-                <th className="p-4 text-gray-400 font-medium">Token</th>
-                <th className="p-4 text-gray-400 font-medium">Amount</th>
-                <th className="p-4 text-gray-400 font-medium">From</th>
-                <th className="p-4 text-gray-400 font-medium">To</th>
-                <th className="p-4 text-gray-400 font-medium">Date</th>
-                <th className="p-4 text-gray-400 font-medium">Status</th>
-                <th className="p-4 text-gray-400 font-medium"></th>
+              <tr className="text-left border-b border-border">
+                <th className="p-4 text-muted-foreground font-medium">Type</th>
+                <th className="p-4 text-muted-foreground font-medium">Token</th>
+                <th className="p-4 text-muted-foreground font-medium">Amount</th>
+                <th className="p-4 text-muted-foreground font-medium">From</th>
+                <th className="p-4 text-muted-foreground font-medium">To</th>
+                <th className="p-4 text-muted-foreground font-medium">Date</th>
+                <th className="p-4 text-muted-foreground font-medium">Status</th>
+                <th className="p-4 text-muted-foreground font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
+            <tbody className="divide-y divide-border">
               {filteredTransactions.map((tx) => (
-                <tr key={tx.hash} className="text-sm hover:bg-gray-700/30">
+                <tr key={tx.hash} className="text-sm hover:bg-muted/30">
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        tx.type === 'in' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                        tx.type === 'in' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
                       }`}>
                         {tx.type === 'in' ? '↓' : '↑'}
                       </div>
-                      <span className="text-white capitalize">
+                      <span className="text-foreground capitalize">
                         {tx.type === 'in' ? 'Received' : 'Sent'}
                       </span>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">
+                      <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
+                        <span className="text-foreground text-xs">
                           {tx.token === 'ETH' ? 'Ξ' : tx.token[0]}
                         </span>
                       </div>
-                      <span className="text-white">{tx.token}</span>
+                      <span className="text-foreground">{tx.token}</span>
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={tx.type === 'in' ? 'text-green-400' : 'text-red-400'}>
+                    <span className={tx.type === 'in' ? 'text-success' : 'text-destructive'}>
                       {tx.type === 'in' ? '+' : '-'}{parseFloat(tx.amount).toFixed(6)}
                     </span>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-white">
+                      <span className="text-foreground">
                         {tx.from.slice(0, 6)}...{tx.from.slice(-4)}
                       </span>
                       <ExternalLink 
                         size={14} 
-                        className="text-gray-400 cursor-pointer hover:text-white"
+                        className="text-muted-foreground cursor-pointer hover:text-foreground"
                         onClick={() => window.open(`https://etherscan.io/address/${tx.from}`, '_blank')}
                       />
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-white">
+                      <span className="text-foreground">
                         {tx.to.slice(0, 6)}...{tx.to.slice(-4)}
                       </span>
                       <ExternalLink 
                         size={14} 
-                        className="text-gray-400 cursor-pointer hover:text-white"
+                        className="text-muted-foreground cursor-pointer hover:text-foreground"
                         onClick={() => window.open(`https://etherscan.io/address/${tx.to}`, '_blank')}
                       />
                     </div>
                   </td>
-                  <td className="p-4 text-gray-400">
+                  <td className="p-4 text-muted-foreground">
                     {formatDistanceToNow(tx.date, { addSuffix: true })}
                   </td>
                   <td className="p-4">
                     <span className={`rounded-full px-2 py-1 text-xs ${
                       tx.status === 'completed' 
-                        ? 'bg-green-500/20 text-green-500'
-                        : 'bg-red-500/20 text-red-500'
+                        ? 'bg-success/20 text-success'
+                        : 'bg-destructive/20 text-destructive'
                     }`}>
                       {tx.status}
                     </span>
@@ -254,7 +254,7 @@ export default function HistoryPage() {
                   <td className="p-4">
                     <ExternalLink 
                       size={14} 
-                      className="text-gray-400 cursor-pointer hover:text-white"
+                      className="text-muted-foreground cursor-pointer hover:text-foreground"
                       onClick={() => window.open(`https://etherscan.io/tx/${tx.hash}`, '_blank')}
                     />
                   </td>
@@ -262,7 +262,7 @@ export default function HistoryPage() {
               ))}
               {filteredTransactions.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="p-4 text-center text-gray-400">
+                  <td colSpan="8" className="p-4 text-center text-muted-foreground">
                     No transactions found
                   </td>
                 </tr>
