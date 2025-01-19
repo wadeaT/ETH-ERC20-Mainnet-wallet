@@ -7,17 +7,3 @@
       "jsx": "preserve"
     }
   }
-  
-/*
-  {
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./src/*"]
-      },
-      "jsx": "preserve",
-      "module": "commonjs",
-      "target": "es6",
-      "types": ["node"]
-    }
-}*/

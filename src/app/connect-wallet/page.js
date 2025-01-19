@@ -9,6 +9,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { CommonHeader } from '@/components/layout/CommonHeader';
+import { ethers } from 'ethers';
 
 export default function ConnectWallet() {
   const router = useRouter();
@@ -36,6 +37,9 @@ export default function ConnectWallet() {
     setIsLoading(true);
 
     try {
+      // Log the username we're looking up
+      console.log('Looking up user:', formData.username);
+
       const userDoc = await getDoc(doc(db, 'users', formData.username));
       
       if (!userDoc.exists()) {
@@ -45,6 +49,7 @@ export default function ConnectWallet() {
       }
 
       const userData = userDoc.data();
+      console.log('User data retrieved:', { ...userData, password: '[REDACTED]' });
       
       if (userData.password !== formData.password) {
         setError('Invalid username or password');
@@ -52,14 +57,40 @@ export default function ConnectWallet() {
         return;
       }
 
-      window.localStorage.setItem('walletAddress', userData.wallet.address);
-      window.localStorage.setItem('username', formData.username);
-      
-      if (userData.wallet.encryptedKey) {
-        window.localStorage.setItem('privateKey', userData.wallet.encryptedKey);
+      // Get the wallet address from the correct location in userData
+      let walletAddress = userData.ethAddress || userData.wallet?.address;
+
+      // Log the address we found
+      console.log('Found wallet address:', walletAddress);
+
+      // Verify the wallet address is valid
+      if (!walletAddress || !ethers.isAddress(walletAddress)) {
+        console.error('Invalid address in userData:', walletAddress);
+        setError('Invalid wallet data found');
+        return;
       }
 
-      console.log('Logged in successfully');
+      // Ensure the address is properly checksummed
+      const checksummedAddress = ethers.getAddress(walletAddress);
+
+      // Clear any old data first
+      localStorage.clear();
+
+      // Store the new data
+      localStorage.setItem('username', formData.username);
+      localStorage.setItem('walletAddress', checksummedAddress);
+      
+      // Handle private key storage
+      const privateKey = userData.encryptedKey || userData.wallet?.privateKey;
+      if (privateKey) {
+        localStorage.setItem('privateKey', privateKey);
+      }
+
+      console.log('Successfully stored wallet data:', {
+        username: formData.username,
+        address: checksummedAddress
+      });
+
       router.push('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
@@ -75,7 +106,6 @@ export default function ConnectWallet() {
       ...prev,
       [name]: value
     }));
-
     if (error) setError('');
   };
 
@@ -83,7 +113,6 @@ export default function ConnectWallet() {
     <div className="min-h-screen bg-background">
       <CommonHeader />
 
-      {/* Main Content */}
       <main className="max-w-md mx-auto p-4">
         <Card className="bg-card/50 backdrop-blur-sm p-8">
           <h2 className="text-2xl font-bold text-primary mb-8 text-center">
@@ -97,7 +126,6 @@ export default function ConnectWallet() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Input */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Username
@@ -113,7 +141,6 @@ export default function ConnectWallet() {
               />
             </div>
 
-            {/* Password Input */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Password
@@ -129,7 +156,6 @@ export default function ConnectWallet() {
               />
             </div>
 
-            {/* Connect Button */}
             <Button
               type="submit"
               variant="primary"
@@ -147,7 +173,6 @@ export default function ConnectWallet() {
               )}
             </Button>
 
-            {/* Help Links */}
             <div className="flex justify-between text-sm">
               <Link href="/restore-wallet" className="text-primary hover:text-primary/80">
                 Restore Using Phrase
@@ -159,7 +184,6 @@ export default function ConnectWallet() {
           </form>
         </Card>
 
-        {/* Security Notice */}
         <div className="mt-8 p-4 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="flex items-start gap-3">
             <span className="text-primary">🛡️</span>

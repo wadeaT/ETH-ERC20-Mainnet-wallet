@@ -1,3 +1,4 @@
+// src/app/dashboard/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,94 +9,138 @@ import { fetchTokenPrices } from '@/lib/api';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { ethers } from 'ethers';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [walletData, setWalletData] = useState({
     address: '',
     ethBalance: '0',
     usdtBalance: '0',
     shibBalance: '0'
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [prices, setPrices] = useState(null);
+
+  // Calculate total balance
+  const calculateTotalBalance = () => {
+    if (!prices) return 0;
+
+    const ethValue = parseFloat(walletData.ethBalance) * (prices.ethereum?.usd || 0);
+    const usdtValue = parseFloat(walletData.usdtBalance) * (prices.tether?.usd || 1); // USDT usually = $1
+    const shibValue = parseFloat(walletData.shibBalance) * (prices['shiba-inu']?.usd || 0);
+
+    return ethValue + usdtValue + shibValue;
+  };
 
   useEffect(() => {
     const initializeWallet = async () => {
       try {
-        const username = window.localStorage.getItem('username');
-        const walletAddress = window.localStorage.getItem('walletAddress');
+        console.log('Initializing wallet...');
         
+        // Get data from localStorage
+        const username = localStorage.getItem('username');
+        let walletAddress = localStorage.getItem('walletAddress');
+
+        console.log('Retrieved from localStorage:', { username, walletAddress });
+
         if (!username || !walletAddress) {
+          console.error('Missing wallet data in localStorage');
           router.push('/connect-wallet');
           return;
         }
 
-        // Get user data from Firebase
-        const userDoc = await getDoc(doc(db, 'users', username));
-        if (!userDoc.exists()) {
-          throw new Error('Wallet not found');
+        try {
+          // Ensure the address is valid and checksummed
+          walletAddress = ethers.getAddress(walletAddress);
+          console.log('Validated address:', walletAddress);
+        } catch (error) {
+          console.error('Address validation failed:', error);
+          router.push('/connect-wallet');
+          return;
         }
 
-        // Initialize provider
-        const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_MAINNET_RPC_URL);
+        // Initialize provider with error handling
+        const providerUrl = process.env.NEXT_PUBLIC_MAINNET_RPC_URL;
+        if (!providerUrl) {
+          throw new Error('RPC URL not configured');
+        }
+
+        const provider = new ethers.JsonRpcProvider(providerUrl);
         
-        // Get ETH balance
-        const ethBalance = await provider.getBalance(walletAddress);
+        // Test provider connection
+        await provider.getNetwork();
+        
+        console.log('Provider connected, fetching balance for:', walletAddress);
+
+        // Get ETH balance with retry logic
+        let ethBalance;
+        try {
+          ethBalance = await provider.getBalance(walletAddress);
+          console.log('ETH balance fetched:', ethers.formatEther(ethBalance));
+        } catch (error) {
+          console.error('Balance fetch failed:', error);
+          ethBalance = ethers.parseEther('0');
+        }
+
         const formattedEthBalance = ethers.formatEther(ethBalance);
 
-        setWalletData({
+        // Update wallet data
+        setWalletData(prev => ({
+          ...prev,
           address: walletAddress,
-          ethBalance: formattedEthBalance,
-          usdtBalance: '0',
-          shibBalance: '0'
-        });
+          ethBalance: formattedEthBalance
+        }));
 
         // Fetch token prices
-        const priceData = await fetchTokenPrices();
-        setPrices(priceData);
+        try {
+          const priceData = await fetchTokenPrices();
+          setPrices(priceData);
+        } catch (error) {
+          console.error('Error fetching prices:', error);
+        }
+
+        // Set up token contracts
+        const USDT_ADDRESS = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+        const SHIB_ADDRESS = '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce';
+        
+        const ERC20_ABI = [
+          'function balanceOf(address) view returns (uint256)',
+          'function decimals() view returns (uint8)'
+        ];
+
+        try {
+          // Get token balances
+          const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, provider);
+          const shibContract = new ethers.Contract(SHIB_ADDRESS, ERC20_ABI, provider);
+
+          const [usdtBalance, usdtDecimals, shibBalance, shibDecimals] = await Promise.all([
+            usdtContract.balanceOf(walletAddress),
+            usdtContract.decimals(),
+            shibContract.balanceOf(walletAddress),
+            shibContract.decimals()
+          ]);
+
+          setWalletData(prev => ({
+            ...prev,
+            usdtBalance: ethers.formatUnits(usdtBalance, usdtDecimals),
+            shibBalance: ethers.formatUnits(shibBalance, shibDecimals)
+          }));
+        } catch (error) {
+          console.error('Error fetching token balances:', error);
+        }
+
       } catch (err) {
-        console.error('Error initializing wallet:', err);
-        setError('Failed to load wallet data');
+        console.error('Initialization error:', err);
+        setError(err.message || 'Failed to load wallet data');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     initializeWallet();
-  }, []);
-
-  const tokens = [
-    {
-      symbol: 'ETH',
-      name: 'MTW Ethereum',
-      icon: '⟠',
-      priceId: 'ethereum',
-      balance: walletData.ethBalance || '0',
-      price: prices?.ethereum?.usd || 0
-    },
-    {
-      symbol: 'USDT',
-      name: 'MTW USD',
-      icon: '₮',
-      priceId: 'tether',
-      balance: walletData.usdtBalance || '0',
-      price: prices?.tether?.usd || 1
-    },
-    {
-      symbol: 'SHIB',
-      name: 'MTW Shiba',
-      icon: '🐕',
-      priceId: 'shiba-inu',
-      balance: walletData.shibBalance || '0',
-      price: prices?.['shiba-inu']?.usd || 0
-    }
-  ];
-
-  // Calculate total balance
-  const totalBalance = tokens.reduce((sum, token) => {
-    return sum + (parseFloat(token.balance) * (token.price || 0));
-  }, 0);
+  }, [router]);
 
   if (loading) {
     return (
@@ -105,16 +150,56 @@ export default function DashboardPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-4 bg-destructive/10 border border-destructive rounded-lg m-4">
+        <h2 className="text-lg font-semibold text-destructive mb-2">Error Loading Wallet</h2>
+        <p className="text-destructive/80">{error}</p>
+      </div>
+    );
+  }
+
+  const totalBalance = calculateTotalBalance();
+
+  const tokens = [
+    {
+      symbol: 'ETH',
+      name: 'Ethereum',
+      icon: '⟠',
+      balance: walletData.ethBalance,
+      price: prices?.ethereum?.usd || 0,
+      change24h: prices?.ethereum?.usd_24h_change || 0
+    },
+    {
+      symbol: 'USDT',
+      name: 'Tether USD',
+      icon: '₮',
+      balance: walletData.usdtBalance,
+      price: prices?.tether?.usd || 1,
+      change24h: prices?.tether?.usd_24h_change || 0
+    },
+    {
+      symbol: 'SHIB',
+      name: 'Shiba Inu',
+      icon: '🐕',
+      balance: walletData.shibBalance,
+      price: prices?.['shiba-inu']?.usd || 0,
+      change24h: prices?.['shiba-inu']?.usd_24h_change || 0
+    }
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="p-4 bg-primary/10 border border-primary rounded-lg">
-        <h2 className="text-primary text-sm">Your Wallet Address</h2>
-        <p className="font-mono text-foreground">{walletData.address}</p>
-      </div>
+      {walletData.address && (
+        <div className="p-4 bg-primary/10 border border-primary rounded-lg">
+          <h2 className="text-primary text-sm">Your Wallet Address</h2>
+          <p className="font-mono text-foreground">{walletData.address}</p>
+        </div>
+      )}
 
       {/* Balance Display */}
       <div className="text-center py-8">
-        <div className="text-muted-foreground text-sm">balance</div>
+        <div className="text-muted-foreground text-sm">Total Balance</div>
         <div className="text-foreground text-2xl font-bold">
           ${totalBalance.toFixed(2)}
         </div>
@@ -136,7 +221,6 @@ export default function DashboardPage() {
             {tokens.map((token) => {
               const balance = parseFloat(token.balance);
               const price = token.price;
-              const change = prices?.[token.priceId]?.usd_24h_change || 0;
               const totalValue = balance * price;
 
               return (
@@ -154,8 +238,8 @@ export default function DashboardPage() {
                   </td>
                   <td className="py-4 text-right text-foreground">{balance.toFixed(token.symbol === 'SHIB' ? 8 : 6)}</td>
                   <td className="py-4 text-right text-foreground">${price.toFixed(token.symbol === 'SHIB' ? 8 : 2)}</td>
-                  <td className={`py-4 text-right ${change >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {change > 0 ? '+' : ''}{change.toFixed(2)}%
+                  <td className={`py-4 text-right ${token.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {token.change24h > 0 ? '+' : ''}{token.change24h.toFixed(2)}%
                   </td>
                   <td className="py-4 text-right text-foreground">${totalValue.toFixed(2)}</td>
                   <td className="py-4">
