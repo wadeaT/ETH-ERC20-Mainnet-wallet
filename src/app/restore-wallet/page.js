@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
-import { CommonHeader } from '@/components/layout/CommonHeader';
+import { Header } from '@/components/layout/Header';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -148,7 +148,7 @@ export default function RestoreWallet() {
 
   return (
     <div className="min-h-screen bg-background p-4">
-      <CommonHeader />
+      <Header showBackButton={true}/>
 
       <main className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-blue-400 mb-8 text-center">

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { CommonHeader } from '@/components/layout/CommonHeader';
+import { Header } from '@/components/layout/Header';
 import { ethers } from 'ethers';
 
 export default function ConnectWallet() {
@@ -111,7 +111,7 @@ export default function ConnectWallet() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CommonHeader />
+      <Header showBackButton={true} />
 
       <main className="max-w-md mx-auto p-4">
         <Card className="bg-card/50 backdrop-blur-sm p-8">

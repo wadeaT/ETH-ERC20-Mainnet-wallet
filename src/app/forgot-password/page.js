@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { CommonHeader } from '@/components/layout/CommonHeader';
+import { Header } from '@/components/layout/Header';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -47,7 +47,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-background p-4">
-      <CommonHeader />
+      <Header showBackButton={true}/>
 
       {/* Main Content */}
       <main className="max-w-md mx-auto">

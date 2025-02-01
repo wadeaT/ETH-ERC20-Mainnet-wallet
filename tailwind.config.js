@@ -39,6 +39,9 @@ module.exports = {
       animation: {
         'slide-up': 'slide-up 0.3s ease-out',
         'fade-in': 'fade-in 0.2s ease-out'
+      },
+      screens: {
+        'xs': '480px',
       }
     },
   },

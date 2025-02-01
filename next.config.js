@@ -1,7 +1,7 @@
-//next.config.js
+// next.config.js - SIMPLIFIED
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  // Remove the images configuration as we're not using Next.js Image
 };
 
 module.exports = nextConfig;

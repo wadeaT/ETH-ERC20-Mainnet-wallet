@@ -2,10 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getTokenPrices, SUPPORTED_TOKENS, formatNumber, formatCryptoAmount, cleanup } from '@/services/tokenPrices';
+import { useTokens, useTokenPrices } from '@/lib/tokenPrices';
 import { Card } from '@/components/ui/Card';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { Info } from 'lucide-react';
+import { formatNumber } from '@/lib/tokenPrices';
 
 export function TokenPriceDisplay({ 
   compact = false, 
@@ -13,39 +14,21 @@ export function TokenPriceDisplay({
   className = '',
   onPriceUpdate = null
 }) {
-  const [prices, setPrices] = useState({});
-  const [loading, setLoading] = useState(true);
+  const { tokens, loading: tokensLoading } = useTokens();
+  const { prices, loading: pricesLoading } = useTokenPrices(tokens);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function initializePrices() {
-      const initialPrices = await getTokenPrices((updatedPrices) => {
-        if (mounted) {
-          setPrices(updatedPrices);
-          onPriceUpdate?.(updatedPrices);
-        }
-      });
-      
-      if (mounted && initialPrices) {
-        setPrices(initialPrices);
-        onPriceUpdate?.(initialPrices);
-        setLoading(false);
-      }
+    if (prices && onPriceUpdate) {
+      onPriceUpdate(prices);
     }
+  }, [prices, onPriceUpdate]);
 
-    initializePrices();
+  const isLoading = tokensLoading || pricesLoading;
 
-    return () => {
-      mounted = false;
-      cleanup();
-    };
-  }, [onPriceUpdate]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
-        {SUPPORTED_TOKENS.map((_, i) => (
+        {[1, 2, 3].map((_, i) => (
           <Card key={i} className="bg-card/50 backdrop-blur-sm p-4 animate-pulse">
             <div className="h-12 bg-muted/50 rounded"></div>
           </Card>
@@ -56,19 +39,19 @@ export function TokenPriceDisplay({
 
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
-      {SUPPORTED_TOKENS.map((token) => {
-        const price = prices[token.id];
+      {tokens.slice(0, 6).map((token) => {
+        const price = prices?.[token.id];
         if (!price) return null;
 
         return (
           <Card 
-            key={token.id} 
+            key={token.symbol} 
             className="bg-card/50 backdrop-blur-sm p-4 transition-all duration-200 hover:scale-[1.02]"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-lg">
-                  <span>{token.icon}</span>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                  <img src={token.icon} alt={token.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -90,13 +73,9 @@ export function TokenPriceDisplay({
               </div>
               <div className="text-right">
                 <p className="font-bold text-foreground">
-                  ${formatNumber(price.usd)}
+                  ${price.usd.toFixed(token.symbol === 'SHIB' ? 8 : 2)}
                 </p>
-                <p className={`text-sm ${
-                  price.usd_24h_change >= 0 
-                    ? 'text-green-400' 
-                    : 'text-red-400'
-                }`}>
+                <p className={`text-sm ${price.usd_24h_change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {price.usd_24h_change >= 0 ? '+' : ''}
                   {price.usd_24h_change.toFixed(2)}%
                 </p>

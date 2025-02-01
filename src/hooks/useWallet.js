@@ -1,142 +1,117 @@
-// hooks/useWallet.js
+// src/hooks/useWallet.js - CONSOLIDATED WALLET HOOK
 import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getTokenBalance, sendTransaction } from '@/lib/ethers';
-import { fetchTokenPrices } from '@/lib/api';
+import rpcProvider from '@/lib/rpcProvider';
+import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
+import { useTokenPrices } from './useTokenPrices';
+
+const ERC20_ABI = [
+  'function balanceOf(address) view returns (uint256)',
+  'function decimals() view returns (uint8)',
+];
+
+async function getTokenBalance(provider, token, walletAddress) {
+  try {
+    if (!token.contractAddress) {
+      const balance = await provider.getBalance(walletAddress);
+      return ethers.formatEther(balance);
+    }
+
+    const contract = new ethers.Contract(token.contractAddress, ERC20_ABI, provider);
+    const [balance, decimals] = await Promise.all([
+      contract.balanceOf(walletAddress),
+      contract.decimals()
+    ]);
+    return ethers.formatUnits(balance, decimals);
+  } catch (error) {
+    console.error(`Balance fetch error for ${token.symbol}:`, error);
+    return '0';
+  }
+}
 
 export function useWallet() {
+  const { rawPrices: prices, loading: pricesLoading } = useTokenPrices();
   const [walletData, setWalletData] = useState({
     address: '',
-    ethBalance: '0',
-    usdtBalance: '0',
-    shibBalance: '0',
-    assets: []
+    balances: {},
+    totalValue: 0,
+    loading: true,
+    error: null
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const handleSendTransaction = async (toAddress, amount, tokenSymbol) => {
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error('Please login to send transactions');
-
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) throw new Error('Wallet not found');
-
-      const userData = userDoc.data();
-      
-      // Check if we have the private key
-      if (!userData.encryptedKey) {
-        throw new Error('Wallet private key not found');
-      }
-
-      // Make sure the private key has the 0x prefix
-      const privateKey = userData.encryptedKey.startsWith('0x') 
-        ? userData.encryptedKey 
-        : `0x${userData.encryptedKey}`;
-
-      console.log('Sending transaction with token:', tokenSymbol);
-      console.log('Amount:', amount);
-      
-      // Get token contract address based on symbol
-      let contractAddress = null;
-      if (tokenSymbol !== 'ETH') {
-        const tokenConfig = {
-          'USDT': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-          'SHIB': '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce'
-        };
-        contractAddress = tokenConfig[tokenSymbol];
-        if (!contractAddress) throw new Error('Unsupported token');
-      }
-
-      // Send the transaction
-      const receipt = await sendTransaction(privateKey, toAddress, amount.toString(), {
-        symbol: tokenSymbol,
-        contractAddress: contractAddress
-      });
-
-      // Refresh balances
-      await refreshWalletData();
-
-      return receipt;
-    } catch (error) {
-      console.error('Transaction error:', error);
-      throw new Error(error.message || 'Failed to send transaction');
-    }
-  };
 
   const refreshWalletData = async () => {
     try {
-      const user = auth.currentUser;
-      if (!user) {
-        setLoading(false);
+      const walletAddress = localStorage.getItem('walletAddress');
+      if (!walletAddress) {
+        setWalletData(prev => ({ ...prev, loading: false }));
         return;
       }
 
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        setLoading(false);
-        return;
-      }
+      const provider = rpcProvider.provider;
 
-      const userData = userDoc.data();
-      const address = userData.ethAddress;
+      // Fetch all token balances in parallel
+      const balancePromises = SUPPORTED_TOKENS.map(token => 
+        getTokenBalance(provider, token, walletAddress)
+      );
 
-      // Get balances
-      const [ethBalance, usdtBalance, shibBalance, prices] = await Promise.all([
-        getTokenBalance(null, address),
-        getTokenBalance('0xdAC17F958D2ee523a2206206994597C13D831ec7', address),
-        getTokenBalance('0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce', address),
-        fetchTokenPrices()
-      ]);
+      const balanceResults = await Promise.all(balancePromises);
+      const balances = SUPPORTED_TOKENS.reduce((acc, token, index) => {
+        acc[token.symbol] = balanceResults[index];
+        return acc;
+      }, {});
 
-      const assets = [
-        {
-          symbol: 'ETH',
-          balance: ethBalance,
-          price: prices?.ethereum?.usd || 0,
-          change24h: prices?.ethereum?.usd_24h_change || 0
-        },
-        {
-          symbol: 'USDT',
-          balance: usdtBalance,
-          price: prices?.tether?.usd || 1,
-          change24h: prices?.tether?.usd_24h_change || 0
-        },
-        {
-          symbol: 'SHIB',
-          balance: shibBalance,
-          price: prices?.['shiba-inu']?.usd || 0,
-          change24h: prices?.['shiba-inu']?.usd_24h_change || 0
-        }
-      ];
+      // Calculate total value
+      const totalValue = SUPPORTED_TOKENS.reduce((total, token) => {
+        const balance = parseFloat(balances[token.symbol] || 0);
+        const price = prices?.[token.id]?.usd || 0;
+        return total + (balance * price);
+      }, 0);
 
       setWalletData({
-        address,
-        ethBalance,
-        usdtBalance,
-        shibBalance,
-        assets
+        address: walletAddress,
+        balances,
+        totalValue,
+        loading: false,
+        error: null
       });
+
     } catch (error) {
-      console.error('Error refreshing wallet data:', error);
-      setError('Failed to refresh wallet data');
+      console.error('Wallet refresh error:', error);
+      setWalletData(prev => ({
+        ...prev,
+        loading: false,
+        error: error.message
+      }));
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    refreshWalletData();
+    if (!pricesLoading) {
+      refreshWalletData();
+    }
+  }, [pricesLoading, prices]);
+
+  useEffect(() => {
     const interval = setInterval(refreshWalletData, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  const tokens = SUPPORTED_TOKENS.map(token => ({
+    ...token,
+    balance: walletData.balances[token.symbol] || '0',
+    price: prices?.[token.id]?.usd || 0,
+    priceChange: prices?.[token.id]?.usd_24h_change || 0,
+    value: parseFloat(walletData.balances[token.symbol] || '0') * (prices?.[token.id]?.usd || 0)
+  }));
+
   return {
-    walletData,
-    loading,
-    error,
-    sendTransaction: handleSendTransaction,
+    tokens,
+    totalValue: walletData.totalValue,
+    address: walletData.address,
+    loading: walletData.loading || pricesLoading,
+    error: walletData.error,
     refreshWalletData
   };
 }

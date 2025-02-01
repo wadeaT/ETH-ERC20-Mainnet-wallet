@@ -9,7 +9,7 @@ import { auth, db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
-import { CommonHeader } from '@/components/layout/CommonHeader';
+import { Header } from '@/components/layout/Header';
 
 export default function CreateWallet() {
   const router = useRouter();
@@ -97,7 +97,7 @@ export default function CreateWallet() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CommonHeader />
+      <Header showBackButton={true}/>
 
       {/* Progress Steps */}
       <div className="max-w-3xl mx-auto mb-8 px-4">
