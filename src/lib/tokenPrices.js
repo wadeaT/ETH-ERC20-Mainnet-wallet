@@ -2,44 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-export const SUPPORTED_TOKENS = [
-  {
-    id: 'ethereum',
-    symbol: 'ETH',
-    name: 'Ethereum',
-    icon: 'Ξ',
-    binanceSymbol: 'ETH',
-  },
-  {
-    id: 'tether',
-    symbol: 'USDT',
-    name: 'Tether USD',
-    icon: '₮',
-    binanceSymbol: 'USDT',
-  },
-  {
-    id: 'chainlink',
-    symbol: 'LINK',
-    name: 'Chainlink',
-    icon: '⬡',
-    binanceSymbol: 'LINK',
-  },
-  {
-    id: 'uniswap',
-    symbol: 'UNI',
-    name: 'Uniswap',
-    icon: '🦄',
-    binanceSymbol: 'UNI',
-  },
-  {
-    id: 'aave',
-    symbol: 'AAVE',
-    name: 'Aave',
-    icon: '👻',
-    binanceSymbol: 'AAVE',
-  }
-];
+import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
 
 let priceCache = new Map();
 let wsConnections = new Map();

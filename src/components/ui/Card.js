@@ -1,34 +1,41 @@
-// src/components/layout/ui/Card.js
+// src/components/ui/Card.js
 'use client';
 
 import React from 'react';
 
-export const Card = ({ children, ...props }) => (
-  <div className="bg-white shadow-md rounded-lg" {...props}>
-    {children}
-  </div>
+const cn = (...classes) => classes.filter(Boolean).join(' ');
+
+export const Card = ({ className, ...props }) => (
+  <div 
+    className={cn("bg-card border border-border rounded-lg shadow-sm", className)} 
+    {...props} 
+  />
 );
 
-export const CardHeader = ({ children, ...props }) => (
-  <div className="px-6 py-4 border-b" {...props}>
-    {children}
-  </div>
+export const CardHeader = ({ className, ...props }) => (
+  <div 
+    className={cn("p-6 border-b border-border", className)} 
+    {...props} 
+  />
 );
 
-export const CardTitle = ({ children, ...props }) => (
-  <h2 className="text-lg font-bold" {...props}>
-    {children}
-  </h2>
+export const CardTitle = ({ className, ...props }) => (
+  <h3 
+    className={cn("text-lg font-semibold text-foreground", className)} 
+    {...props} 
+  />
 );
 
-export const CardContent = ({ children, ...props }) => (
-  <div className="px-6 py-4" {...props}>
-    {children}
-  </div>
+export const CardContent = ({ className, ...props }) => (
+  <div 
+    className={cn("p-6", className)} 
+    {...props} 
+  />
 );
 
-export const CardFooter = ({ children, ...props }) => (
-  <div className="px-6 py-4 border-t" {...props}>
-    {children}
-  </div>
+export const CardFooter = ({ className, ...props }) => (
+  <div 
+    className={cn("p-6 border-t border-border", className)} 
+    {...props} 
+  />
 );

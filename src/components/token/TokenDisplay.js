@@ -1,22 +1,28 @@
-// src/components/token/TokenDisplay.js - UPDATED IMAGE HANDLING
+// src/components/token/TokenDisplay.js
 'use client';
 
-import { useTokenPrices } from '@/hooks/useTokenPrices';
+import { useLiveTokenPrices } from '@/hooks/useLiveTokenPrices';
 import { Card } from '@/components/ui/Card';
 import { formatNumber } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
+
+function formatTimeDiff(timestamp) {
+  if (!timestamp) return '';
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 5) return 'Just now';
+  if (seconds < 60) return `${seconds}s ago`;
+  return `${Math.floor(seconds / 60)}m ago`;
+}
 
 export default function TokenDisplay() {
-  const { tokens, loading, error } = useTokenPrices();
+  const { prices, loading, error } = useLiveTokenPrices();
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="bg-card/50 backdrop-blur-sm p-6 animate-pulse">
-            <div className="h-8 bg-muted rounded w-1/2 mb-4"></div>
-            <div className="h-6 bg-muted rounded w-3/4"></div>
-          </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[1, 2, 3].map(i => (
+          <Card key={i} className="h-24 animate-pulse bg-muted/50" />
         ))}
       </div>
     );
@@ -24,77 +30,66 @@ export default function TokenDisplay() {
 
   if (error) {
     return (
-      <Card className="bg-destructive/10 text-destructive p-6 text-center">
-        <p>Unable to load token prices. Please try again later.</p>
-        <p className="text-sm mt-2">Error: {error}</p>
-      </Card>
+      <div className="text-center text-destructive p-4">
+        {error}
+      </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {tokens.map((token) => (
-        <Card 
-          key={token.id}
-          className="bg-card/50 backdrop-blur-sm p-6 relative overflow-hidden hover:scale-[1.02] transition-transform duration-200"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-              {token.icon ? (
-                <img
-                  src={token.icon}
-                  alt={token.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = `data:image/svg+xml,${encodeURIComponent(
-                      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                        <rect width="100" height="100" fill="#4B5563"/>
-                        <text x="50" y="50" font-family="Arial" font-size="40" fill="#fff" text-anchor="middle" dy=".3em">
-                          ${token.symbol[0]}
-                        </text>
-                      </svg>`
-                    )}`;
-                  }}
-                />
-              ) : (
-                <span className="text-lg">{token.symbol[0]}</span>
-              )}
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground">{token.name}</h3>
-              <p className="text-sm text-muted-foreground">{token.symbol}</p>
-            </div>
-          </div>
-          
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${token.id}-${token.price}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-1"
-            >
-              <div className="text-xl font-bold text-foreground">
-                ${formatNumber(token.price, 2)}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {SUPPORTED_TOKENS.map((token) => {
+        const price = prices[token.id];
+        return (
+          <Card key={token.id} className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                {token.icon ? (
+                  <img 
+                    src={token.icon} 
+                    alt={token.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl">{token.symbol[0]}</span>
+                )}
               </div>
-              <div className={`text-sm ${token.priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {token.priceChange > 0 ? '+' : ''}{formatNumber(token.priceChange, 2)}%
-              </div>
-              {token.volume > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Vol: ${formatNumber(token.volume / 1e6, 2)}M
+              
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">{token.name}</h3>
+                  <span className="text-xs text-muted-foreground">
+                    {price?.lastUpdate ? formatTimeDiff(price.lastUpdate) : ''}
+                  </span>
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-          
-          {token.lastUpdate && (
-            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          )}
-        </Card>
-      ))}
+                
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`${price?.usd}-${price?.lastUpdate}`}
+                    initial={{ opacity: 0.8, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0.8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center justify-between mt-1"
+                  >
+                    <p className="text-2xl font-bold">
+                      ${formatNumber(price?.usd || 0)}
+                    </p>
+                    <p className={`text-sm ${
+                      (price?.usd_24h_change || 0) >= 0 
+                        ? 'text-green-500' 
+                        : 'text-red-500'
+                    }`}>
+                      {(price?.usd_24h_change || 0) > 0 ? '+' : ''}
+                      {formatNumber(price?.usd_24h_change || 0, 2)}%
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 }

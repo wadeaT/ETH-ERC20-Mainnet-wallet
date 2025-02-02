@@ -1,9 +1,15 @@
+// src/app/page.js
 'use client';
 
 import { Header } from '@/components/layout/Header';
 import { Hero } from '@/components/home/Hero';
 import { WalletActions } from '@/components/home/WalletActions';
-import TokenDisplay from '@/components/token/TokenDisplay';
+import dynamic from 'next/dynamic';
+
+// Dynamically import TokenDisplay with no SSR
+const TokenDisplay = dynamic(() => import('@/components/token/TokenDisplay'), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

@@ -9,9 +9,11 @@ const ThemeContext = createContext({
 });
 
 export function ThemeProvider({ children }) {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
+    setMounted(true);
     // Check for theme in localStorage or use system preference
     const savedTheme = localStorage.getItem('theme');
     
@@ -23,34 +25,30 @@ export function ThemeProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    // Update theme class on document and save to localStorage
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    if (mounted) {
+      // Update theme class on document and save to localStorage
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+      root.classList.add(theme);
+      localStorage.setItem('theme', theme);
+    }
+  }, [theme, mounted]);
 
-  const value = {
-    theme,
-    setTheme: (newTheme) => {
-      setTheme(newTheme);
-    },
-  };
+  if (!mounted) {
+    return null;
+  }
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-// Custom hook to use theme
 export function useTheme() {
   const context = useContext(ThemeContext);
-  
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
-  
   return context;
 }

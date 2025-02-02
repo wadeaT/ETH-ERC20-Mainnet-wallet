@@ -1,4 +1,4 @@
-//// src/components/layout/ui/TransactionForm.js
+//// src/components/ui/TransactionForm.js
 'use client';
 
 import React, { useState } from 'react';

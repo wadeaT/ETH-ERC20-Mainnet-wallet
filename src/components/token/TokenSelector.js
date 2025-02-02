@@ -1,7 +1,7 @@
 // src/components/token/TokenSelector.js
 import { ChevronDown } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
-import { DEFAULT_ICONS } from '@/lib/tokenConfig';
+import { DEFAULT_ICONS } from '@/lib/constants/tokens';
 
 export function TokenSelector({ 
   selectedToken, 

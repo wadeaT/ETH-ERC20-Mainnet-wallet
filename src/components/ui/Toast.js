@@ -1,67 +1,76 @@
-// // src/components/layout/ui/Toast.js
+// src/components/ui/Toast.js
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
-export const Toast = ({ message, type = 'success', onClose }) => {
-  return (
-    <div className={`
-      flex items-center gap-2 
-      px-4 py-3 rounded-lg 
-      animate-slide-up
-      shadow-lg
-      ${type === 'success' ? 'bg-green-500/20 text-green-500 border border-green-500/20' : 
-        type === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/20' :
-        type === 'info' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' : 
-        'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20'}
-    `}>
-      {message}
-      <button 
-        onClick={onClose}
-        className="ml-2 hover:opacity-70 transition-opacity"
-      >
-        ×
-      </button>
-    </div>
-  );
-};
-
-export const ToastProvider = ({ children }) => {
+export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const showToast = (message, type = 'success') => {
+  const addToast = useCallback((message, type = 'info') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
-    
-    // Auto remove after 3 seconds
     setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, 3000);
-  };
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 5000);
+  }, []);
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={addToast}>
       {children}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-        {toasts.map(toast => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-          />
-        ))}
+        <AnimatePresence>
+          {toasts.map(toast => (
+            <Toast key={toast.id} {...toast} onClose={() => {
+              setToasts(prev => prev.filter(t => t.id !== toast.id));
+            }} />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );
-};
+}
 
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+function Toast({ message, type, onClose }) {
+  const variants = {
+    initial: { opacity: 0, y: 50, scale: 0.3 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, scale: 0.5, transition: { duration: 0.2 } }
+  };
+
+  const colors = {
+    success: 'bg-success/10 border-success/20 text-success',
+    error: 'bg-destructive/10 border-destructive/20 text-destructive',
+    info: 'bg-primary/10 border-primary/20 text-primary',
+    warning: 'bg-warning/10 border-warning/20 text-warning'
+  };
+
+  return (
+    <motion.div
+      variants={variants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className={`${colors[type]} rounded-lg border p-4 shadow-lg min-w-[300px] max-w-md flex items-center justify-between`}
+    >
+      <span>{message}</span>
+      <button
+        onClick={onClose}
+        className="ml-4 hover:opacity-70 transition-opacity"
+      >
+        <X size={18} />
+      </button>
+    </motion.div>
+  );
+}
+
+export function useToast() {
+  const addToast = useContext(ToastContext);
+  if (!addToast) {
+    throw new Error('useToast must be used within ToastProvider');
   }
-  return context;
-};
+  return addToast;
+}

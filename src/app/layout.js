@@ -1,9 +1,8 @@
 // src/app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ClientProvider from './ClientProvider';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { Suspense } from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import ClientProviders from '@/components/ClientProviders';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,14 +18,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <Suspense fallback={null}>
-          <ThemeProvider>
-            <div className={`${inter.variable} font-sans antialiased`}>
-              <ClientProvider>{children}</ClientProvider>
-            </div>
-          </ThemeProvider>
-        </Suspense>
+      <body className={inter.variable} suppressHydrationWarning>
+        <ErrorBoundary>
+          <ClientProviders>
+            {children}
+          </ClientProviders>
+        </ErrorBoundary>
       </body>
     </html>
   );
