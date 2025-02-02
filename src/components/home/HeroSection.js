@@ -12,14 +12,14 @@ const WALLET_ACTIONS = [
 ];
 
 export const HeroSection = () => (
-  <div className="relative z-10 w-full max-w-7xl mx-auto">
+  <div className="relative z-10 w-full max-w-7xl mx-auto pt-28 md:pt-32">
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="text-center mb-8 sm:mb-12"
     >
-      <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-4 sm:mb-6">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-4 sm:mb-6 px-4">
         ETH Wallet Hub
       </h1>
       <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">

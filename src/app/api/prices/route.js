@@ -1,71 +1,61 @@
-// src/app/api/prices/route.js - USING CRYPTOCOMPARE API
+// src/app/api/prices/route.js
 import { NextResponse } from 'next/server';
-import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
 
-const CRYPTOCOMPARE_API = 'https://min-api.cryptocompare.com/data';
-const API_KEY = 'YOUR_API_KEY'; // You can even use it without API key
+const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
-async function fetchPrices() {
+export async function GET(request) {
   try {
-    // Get all symbols for the request
-    const symbols = SUPPORTED_TOKENS.map(token => token.symbol).join(',');
-    
-    const response = await fetch(
-      `${CRYPTOCOMPARE_API}/pricemultifull?fsyms=${symbols}&tsyms=USD`,
-      {
-        headers: API_KEY ? { 'authorization': `Apikey ${API_KEY}` } : {}
-      }
-    );
-    
-    const data = await response.json();
-    const prices = {};
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    const id = searchParams.get('id');
+    const days = searchParams.get('days') || '1';
 
-    if (data.RAW) {
-      SUPPORTED_TOKENS.forEach(token => {
-        const rawData = data.RAW[token.symbol]?.USD;
-        if (rawData) {
-          prices[token.id] = {
-            usd: rawData.PRICE,
-            usd_24h_change: ((rawData.PRICE - rawData.OPEN24HOUR) / rawData.OPEN24HOUR) * 100,
-            volume: rawData.VOLUME24HOUR,
-            lastUpdate: Date.now()
-          };
-        } else {
-          // Fallback for stable coins
-          if (['USDC', 'DAI'].includes(token.symbol)) {
-            prices[token.id] = {
-              usd: 1,
-              usd_24h_change: 0,
-              volume: 0,
-              lastUpdate: Date.now()
-            };
-          } else {
-            console.warn(`No price data for ${token.symbol}`);
-            prices[token.id] = {
-              usd: 0,
-              usd_24h_change: 0,
-              volume: 0,
-              lastUpdate: Date.now()
-            };
-          }
-        }
-      });
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Token ID is required' },
+        { status: 400 }
+      );
     }
 
-    return prices;
-  } catch (error) {
-    console.error('Error fetching prices:', error);
-    throw error;
-  }
-}
+    let apiUrl;
+    if (action === 'history') {
+      apiUrl = `${COINGECKO_API}/coins/${id}/market_chart?vs_currency=usd&days=${days}`;
+    } else if (action === 'market') {
+      apiUrl = `${COINGECKO_API}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`;
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid action' },
+        { status: 400 }
+      );
+    }
 
-export async function GET() {
-  try {
-    const prices = await fetchPrices();
-    return NextResponse.json(prices);
+    console.log(`Fetching ${action} data for ${id}`);
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Accept': 'application/json',
+      },
+      next: { revalidate: 60 }
+    });
+
+    if (!response.ok) {
+      console.error(`CoinGecko API error (${id}):`, response.status);
+      throw new Error(`CoinGecko API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // For market chart data, ensure prices array exists
+    if (action === 'history' && !data.prices) {
+      return NextResponse.json({ prices: [] });
+    }
+
+    return NextResponse.json(data);
+
   } catch (error) {
+    console.error('API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch prices' },
+      { error: error.message || 'Failed to fetch data' },
       { status: 500 }
     );
   }

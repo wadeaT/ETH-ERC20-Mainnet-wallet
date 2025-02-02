@@ -12,7 +12,11 @@ export const WalletActions = () => (
   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-2xl mx-auto px-4 mb-12">
     {ACTIONS.map(({ path, text, color }) => (
       <Link key={path} href={`/${path}`} className="w-full sm:w-auto">
-        <Button variant="primary" size="lg" className={`w-full text-sm sm:text-base ${color}`}>
+        <Button 
+          variant="primary" 
+          size="lg" 
+          className={`w-full text-sm sm:text-base ${color}`}
+        >
           {text}
         </Button>
       </Link>

@@ -1,11 +1,11 @@
 // src/app/dashboard/page.js
 'use client';
 
-import { TokenDashboard } from '@/components/TokenDashboard';
-import { TokenChart } from '@/components/TokenChart';
 import { Card } from '@/components/ui/Card';
 import { useWallet } from '@/hooks/useWallet';
-import { formatAddress } from '@/lib/utils';
+import { formatAddress, formatNumber } from '@/lib/utils';
+import { ExpandableTokenRow } from '@/components/token/ExpandableTokenRow';
+import { TokenChart } from '@/components/TokenChart';
 
 export default function DashboardPage() {
   const { tokens, totalValue, address, loading, error } = useWallet();
@@ -51,15 +51,30 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Token Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <TokenDashboard tokens={tokens} loading={loading} />
-        </div>
-        <div>
-          <TokenChart tokens={tokens} />
-        </div>
+      {/* Token List */}
+      <div className="space-y-4">
+        {loading ? (
+          <LoadingState />
+        ) : (
+          tokens.map(token => (
+            <ExpandableTokenRow
+              key={token.id}
+              token={token}
+              priceHistory={[]} // We'll update this with real data
+            />
+          ))
+        )}
       </div>
+    </div>
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map(i => (
+        <Card key={i} className="h-16 animate-pulse bg-muted" />
+      ))}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-// src/hooks/useLiveTokenPrices.js - FIXED WEBSOCKET CONNECTION
+// src/hooks/useLiveTokenPrices.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,8 +6,29 @@ import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
 
 export function useLiveTokenPrices() {
   const [prices, setPrices] = useState({});
+  const [priceHistory, setPriceHistory] = useState({});
   const [status, setStatus] = useState({ loading: true, error: null });
 
+  // Initialize and maintain price history
+  useEffect(() => {
+    if (Object.keys(prices).length > 0) {
+      // Update history when new prices come in
+      Object.entries(prices).forEach(([tokenId, priceData]) => {
+        setPriceHistory(prev => ({
+          ...prev,
+          [tokenId]: [
+            ...(prev[tokenId] || []).slice(-23), // Keep last 23 points
+            {
+              time: priceData.lastUpdate || Date.now(),
+              price: priceData.usd
+            }
+          ]
+        }));
+      });
+    }
+  }, [prices]);
+
+  // Main WebSocket and price fetching logic
   useEffect(() => {
     let mounted = true;
     let heartbeatInterval;
@@ -30,12 +51,10 @@ export function useLiveTokenPrices() {
     }
 
     function connectWebSocket() {
-      // Filter out tokens that don't have Binance pairs
       const validTokens = SUPPORTED_TOKENS.filter(token => 
         !['STETH', 'WBETH'].includes(token.symbol)
       );
 
-      // Create combined streams URL
       const streams = validTokens
         .map(token => `${token.symbol.toLowerCase()}usdt@ticker`)
         .join('/');
@@ -45,7 +64,6 @@ export function useLiveTokenPrices() {
       ws.onopen = () => {
         console.log('WebSocket Connected');
         
-        // Setup heartbeat
         heartbeatInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ ping: Date.now() }));
@@ -58,22 +76,21 @@ export function useLiveTokenPrices() {
         try {
           const message = JSON.parse(event.data);
           
-          // Handle heartbeat response
           if (message.pong) return;
 
-          // Handle price updates
           if (message.data && message.data.s) {
             const data = message.data;
             const symbol = data.s.replace('USDT', '');
             const token = SUPPORTED_TOKENS.find(t => t.symbol === symbol);
 
             if (token) {
+              const currentPrice = parseFloat(data.c);
               setPrices(prev => ({
                 ...prev,
                 [token.id]: {
-                  usd: parseFloat(data.c),
+                  usd: currentPrice,
                   usd_24h_change: parseFloat(data.P),
-                  volume: parseFloat(data.v) * parseFloat(data.c),
+                  volume: parseFloat(data.v) * currentPrice,
                   lastUpdate: Date.now()
                 }
               }));
@@ -87,7 +104,7 @@ export function useLiveTokenPrices() {
                     setPrices(prev => ({
                       ...prev,
                       [derivativeToken.id]: {
-                        usd: parseFloat(data.c),
+                        usd: currentPrice,
                         usd_24h_change: parseFloat(data.P),
                         lastUpdate: Date.now()
                       }
@@ -122,14 +139,10 @@ export function useLiveTokenPrices() {
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
     }
 
-    // Initial setup
     fetchInitialPrices();
     const ws = connectWebSocket();
-
-    // Polling fallback for reliability
     const pollInterval = setInterval(fetchInitialPrices, 30000);
 
-    // Cleanup on unmount
     return () => {
       mounted = false;
       cleanup();
@@ -140,6 +153,7 @@ export function useLiveTokenPrices() {
 
   return {
     prices,
+    priceHistory,
     loading: status.loading,
     error: status.error,
     isLive: Object.keys(prices).length > 0
