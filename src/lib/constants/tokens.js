@@ -1,17 +1,17 @@
-// src/lib/constants/tokens.js - UPDATED TOKEN LIST
+// src/lib/constants/tokens.js
 export const DEFAULT_ICONS = {
   'ETH': '⟠',
   'USDC': '💲',
-  'STETH': '⟠',
-  'LINK': '⬡',
+  'LINK': '⚡',
   'WBTC': '₿',
   'TON': '💎',
-  'WETH': '⟠',
-  'SHIB': '🐕',
-  'LEO': '🦁',
   'UNI': '🦄',
   'WBETH': '⟠',
-  'DAI': '◈'
+  'MKR': '🏦',
+  'AAVE': '👻',
+  'LDO': '🔷',
+  'QNT': '🌐',
+  'MANA': '🎮'
 };
 
 export const SUPPORTED_TOKENS = [
@@ -34,18 +34,6 @@ export const SUPPORTED_TOKENS = [
     fallbackIcon: DEFAULT_ICONS.USDC,
     contractAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     decimals: 6,
-    isERC20: true,
-    priceFallback: 'stable'
-  },
-  {
-    id: 'steth',
-    symbol: 'STETH',
-    name: 'Staked Ether',
-    binanceSymbol: 'STETHUSDT',
-    icon: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
-    fallbackIcon: DEFAULT_ICONS.STETH,
-    contractAddress: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-    decimals: 18,
     isERC20: true
   },
   {
@@ -73,45 +61,12 @@ export const SUPPORTED_TOKENS = [
   {
     id: 'the-open-network',
     symbol: 'TON',
-    name: 'TON Coin',
+    name: 'Toncoin',
     binanceSymbol: 'TONUSDT',
     icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png',
     fallbackIcon: DEFAULT_ICONS.TON,
     decimals: 9,
     isERC20: false
-  },
-  {
-    id: 'weth',
-    symbol: 'WETH',
-    name: 'Wrapped Ether',
-    binanceSymbol: 'WETHUSDT',
-    icon: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
-    fallbackIcon: DEFAULT_ICONS.WETH,
-    contractAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    decimals: 18,
-    isERC20: true
-  },
-  {
-    id: 'shiba-inu',
-    symbol: 'SHIB',
-    name: 'Shiba Inu',
-    binanceSymbol: 'SHIBUSDT',
-    icon: 'https://assets.coingecko.com/coins/images/11939/small/shiba.png',
-    fallbackIcon: DEFAULT_ICONS.SHIB,
-    contractAddress: '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce',
-    decimals: 18,
-    isERC20: true
-  },
-  {
-    id: 'leo-token',
-    symbol: 'LEO',
-    name: 'UNUS SED LEO',
-    binanceSymbol: 'LEOUSDT',
-    icon: 'https://assets.coingecko.com/coins/images/8418/small/leo-token.png',
-    fallbackIcon: DEFAULT_ICONS.LEO,
-    contractAddress: '0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3',
-    decimals: 18,
-    isERC20: true
   },
   {
     id: 'uniswap',
@@ -136,28 +91,58 @@ export const SUPPORTED_TOKENS = [
     isERC20: true
   },
   {
-    id: 'dai',
-    symbol: 'DAI',
-    name: 'Dai',
-    binanceSymbol: 'DAIUSDT',
-    icon: 'https://assets.coingecko.com/coins/images/9956/small/4943.png',
-    fallbackIcon: DEFAULT_ICONS.DAI,
-    contractAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    id: 'maker',
+    symbol: 'MKR',
+    name: 'Maker',
+    binanceSymbol: 'MKRUSDT',
+    icon: 'https://assets.coingecko.com/coins/images/1364/small/Mark_Maker.png',
+    fallbackIcon: DEFAULT_ICONS.MKR,
+    contractAddress: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
     decimals: 18,
-    isERC20: true,
-    priceFallback: 'stable'
+    isERC20: true
+  },
+  {
+    id: 'aave',
+    symbol: 'AAVE',
+    name: 'Aave',
+    binanceSymbol: 'AAVEUSDT',
+    icon: 'https://assets.coingecko.com/coins/images/12645/small/AAVE.png',
+    fallbackIcon: DEFAULT_ICONS.AAVE,
+    contractAddress: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+    decimals: 18,
+    isERC20: true
+  },
+  {
+    id: 'lido-dao',
+    symbol: 'LDO',
+    name: 'Lido DAO',
+    binanceSymbol: 'LDOUSDT',
+    icon: 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png',
+    fallbackIcon: DEFAULT_ICONS.LDO,
+    contractAddress: '0x5a98fcbea516cf06857215779fd812ca3bef1b32',
+    decimals: 18,
+    isERC20: true
+  },
+  {
+    id: 'quant-network',
+    symbol: 'QNT',
+    name: 'Quant',
+    binanceSymbol: 'QNTUSDT',
+    icon: 'https://assets.coingecko.com/coins/images/3370/small/5ZOu7brX_400x400.jpg',
+    fallbackIcon: DEFAULT_ICONS.QNT,
+    contractAddress: '0x4a220e6096b25eadb88358cb44068a3248254675',
+    decimals: 18,
+    isERC20: true
+  },
+  {
+    id: 'decentraland',
+    symbol: 'MANA',
+    name: 'Decentraland',
+    binanceSymbol: 'MANAUSDT',
+    icon: 'https://assets.coingecko.com/coins/images/878/small/decentraland-mana.png',
+    fallbackIcon: DEFAULT_ICONS.MANA,
+    contractAddress: '0x0f5d2fb29fb7d3cfee444a200298f468908cc942',
+    decimals: 18,
+    isERC20: true
   }
 ];
-
-export const PRICE_CONFIG = {
-  stableCoins: ['USDC', 'DAI'],
-  backupPairs: {
-    WETH: 'ETH_USD',
-    STETH: 'ETH_USD',
-    WBETH: 'ETH_USD'
-  },
-  alternativeAPIs: [
-    'https://api.binance.us/api/v3',
-    'https://api.kucoin.com/api/v1'
-  ]
-};

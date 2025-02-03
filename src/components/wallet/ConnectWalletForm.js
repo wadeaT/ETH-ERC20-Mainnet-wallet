@@ -2,13 +2,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
-import { PasswordField } from '../shared/PasswordField';
+import { FormField } from '@/components/common/FormField';
+import { SecurityNotice } from '@/components/common/SecurityNotice';
 
 export function ConnectWalletForm() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export function ConnectWalletForm() {
       
       if (!userDoc.exists() || userDoc.data().password !== formData.password) {
         setError('Invalid username or password');
+        setIsLoading(false);
         return;
       }
 
@@ -50,45 +52,37 @@ export function ConnectWalletForm() {
     } catch (err) {
       console.error('Login error:', err);
       setError('An error occurred during login');
-    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      {error && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-destructive text-sm">{error}</p>
-        </div>
-      )}
+    <div className="space-y-6">
+      {error && <SecurityNotice type="error">{error}</SecurityNotice>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">
-            Username
-          </label>
-          <input
-            type="text"
-            value={formData.username}
-            onChange={(e) => {
-              setFormData(prev => ({...prev, username: e.target.value}));
-              if (error) setError('');
-            }}
-            className="w-full bg-input/50 border border-input rounded-lg px-4 py-2 text-foreground"
-            placeholder="Enter your username"
-            required
-          />
-        </div>
+        <FormField
+          label="Username"
+          type="text"
+          value={formData.username}
+          onChange={(e) => {
+            setFormData(prev => ({...prev, username: e.target.value}));
+            setError('');
+          }}
+          placeholder="Enter your username"
+          required
+        />
 
-        <PasswordField
+        <FormField
+          type="password"
+          label="Password"
           value={formData.password}
           onChange={(e) => {
             setFormData(prev => ({...prev, password: e.target.value}));
-            if (error) setError('');
+            setError('');
           }}
-          label="Password"
           placeholder="Enter your password"
+          required
         />
 
         <Button
@@ -100,7 +94,7 @@ export function ConnectWalletForm() {
         >
           {isLoading ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
               <span>Connecting...</span>
             </div>
           ) : (
@@ -117,6 +111,6 @@ export function ConnectWalletForm() {
           </Link>
         </div>
       </form>
-    </>
+    </div>
   );
 }

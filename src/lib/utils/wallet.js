@@ -1,6 +1,6 @@
 // src/lib/utils/wallet.js
 import { ethers } from 'ethers';
-import { formatAddress, formatCryptoAmount } from './format';
+import { formatAddress, formatCryptoAmount } from '@/lib/utils';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 

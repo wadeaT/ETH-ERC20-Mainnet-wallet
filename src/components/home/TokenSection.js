@@ -1,11 +1,7 @@
 // src/components/home/TokenSection.js
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const TokenDisplay = dynamic(() => import('@/components/token/TokenDisplay'), {
-  ssr: false,
-});
+import { TokenDisplay } from '@/components/token/TokenDisplay';
 
 export function TokenSection() {
   return (

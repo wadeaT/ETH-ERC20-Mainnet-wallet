@@ -2,18 +2,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
 import { SUPPORTED_TOKENS } from '@/lib/constants/tokens';
 import rpcProvider from '@/lib/rpcProvider';
-import { useLiveTokenPrices } from './useLiveTokenPrices';
-
-const ERC20_ABI = [
-  'function balanceOf(address) view returns (uint256)',
-  'function decimals() view returns (uint8)'
-];
+import { getTokenBalance } from '@/services/transactionService';
+import { useTokenPrices } from './useTokenPrices';
 
 export function useWallet() {
-  const { prices, loading: pricesLoading } = useLiveTokenPrices();
+  const { prices, loading: pricesLoading } = useTokenPrices();
   const [state, setState] = useState({
     address: '',
     balances: {},
@@ -32,25 +27,13 @@ export function useWallet() {
 
     const fetchBalances = async () => {
       try {
-        const provider = rpcProvider.provider;
         const balances = await Promise.all(
-          SUPPORTED_TOKENS.map(async token => {
-            try {
-              if (!token.contractAddress) {
-                const balance = await provider.getBalance(walletAddress);
-                return ethers.formatEther(balance);
-              }
-              const contract = new ethers.Contract(token.contractAddress, ERC20_ABI, provider);
-              const [balance, decimals] = await Promise.all([
-                contract.balanceOf(walletAddress),
-                contract.decimals()
-              ]);
-              return ethers.formatUnits(balance, decimals);
-            } catch (error) {
-              console.error(`Balance fetch error for ${token.symbol}:`, error);
-              return '0';
-            }
-          })
+          SUPPORTED_TOKENS.map(token => 
+            getTokenBalance(
+              token.contractAddress,
+              walletAddress
+            )
+          )
         );
 
         if (mounted) {
@@ -64,6 +47,7 @@ export function useWallet() {
           });
         }
       } catch (error) {
+        console.error('Balance fetch error:', error);
         if (mounted) {
           setState(prev => ({
             ...prev,

@@ -5,41 +5,74 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/common/FormField';
 import { TokenSelector } from '@/components/token/TokenSelector';
 import { AmountInput } from '@/components/transaction/AmountInput';
 import { useWallet } from '@/hooks/useWallet';
 import { sendTransaction } from '@/services/transactionService';
 import { SecurityNotice } from '@/components/common/SecurityNotice';
+import { ethers } from 'ethers';
 
 export default function SendPage() {
   const router = useRouter();
   const { tokens, loading } = useWallet();
   
-  const [formData, setFormData] = useState({
+  const [state, setState] = useState({
     toAddress: '',
     amount: '',
-    selectedToken: tokens[0]
+    selectedToken: tokens[0],
+    showTokenSelect: false,
+    isLoading: false,
+    error: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showTokenSelect, setShowTokenSelect] = useState(false);
+
+  const handleStateChange = (updates) => {
+    setState(prev => ({ ...prev, ...updates }));
+  };
+
+  const validateAddress = (address) => {
+    if (!address) return 'Recipient address is required';
+    if (!ethers.isAddress(address)) return 'Invalid Ethereum address';
+    return '';
+  };
+
+  const validateAmount = (amount, token) => {
+    if (!amount) return 'Amount is required';
+    if (isNaN(amount) || parseFloat(amount) <= 0) return 'Invalid amount';
+    if (parseFloat(amount) > parseFloat(token.balance)) {
+      return 'Insufficient balance';
+    }
+    return '';
+  };
 
   const handleSend = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+    const { toAddress, amount, selectedToken } = state;
+
+    // Validate inputs
+    const addressError = validateAddress(toAddress);
+    if (addressError) {
+      handleStateChange({ error: addressError });
+      return;
+    }
+
+    const amountError = validateAmount(amount, selectedToken);
+    if (amountError) {
+      handleStateChange({ error: amountError });
+      return;
+    }
+
+    handleStateChange({ isLoading: true, error: '' });
 
     try {
-      await sendTransaction(
-        formData.toAddress, 
-        formData.amount, 
-        formData.selectedToken
-      );
+      await sendTransaction(toAddress, amount, selectedToken);
       router.push('/dashboard');
     } catch (error) {
       console.error('Send error:', error);
-      setError(error.message || 'Transaction failed. Please try again.');
-      setIsLoading(false);
+      handleStateChange({ 
+        error: error.message || 'Transaction failed. Please try again.',
+        isLoading: false 
+      });
     }
   };
 
@@ -51,71 +84,98 @@ export default function SendPage() {
     );
   }
 
+  const { toAddress, amount, selectedToken, showTokenSelect, isLoading, error } = state;
+
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-foreground mb-8">
-        Send {formData.selectedToken?.symbol}
+        Send {selectedToken?.symbol}
       </h1>
 
       <Card className="bg-card/50 backdrop-blur-sm p-6">
         <form onSubmit={handleSend} className="space-y-6">
+          {/* Token Selection */}
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
               Select Token
             </label>
             <TokenSelector 
-              selectedToken={formData.selectedToken}
+              selectedToken={selectedToken}
               tokens={tokens}
               onSelect={(token) => {
-                setFormData(prev => ({ ...prev, selectedToken: token }));
-                setShowTokenSelect(false);
+                handleStateChange({ 
+                  selectedToken: token,
+                  showTokenSelect: false 
+                });
               }}
               showSelect={showTokenSelect}
-              onToggleSelect={() => setShowTokenSelect(!showTokenSelect)}
+              onToggleSelect={() => handleStateChange({ 
+                showTokenSelect: !showTokenSelect 
+              })}
             />
           </div>
 
-          <div>
-            <label className="block text-sm text-muted-foreground mb-1">
-              Recipient
-            </label>
-            <input
-              type="text"
-              value={formData.toAddress}
-              onChange={(e) => setFormData(prev => ({ 
-                ...prev, 
-                toAddress: e.target.value 
-              }))}
-              placeholder="0x..."
-              className="w-full bg-muted/50 border border-input rounded-lg px-4 py-3 
-                text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
-            />
-          </div>
-
-          <AmountInput
-            amount={formData.amount}
-            onAmountChange={(value) => setFormData(prev => ({ 
-              ...prev, 
-              amount: value 
-            }))}
-            onSetMax={() => setFormData(prev => ({ 
-              ...prev, 
-              amount: prev.selectedToken.balance 
-            }))}
-            token={formData.selectedToken}
+          {/* Recipient Address */}
+          <FormField
+            label="Recipient Address"
+            type="text"
+            value={toAddress}
+            onChange={(e) => {
+              handleStateChange({ 
+                toAddress: e.target.value,
+                error: '' 
+              });
+            }}
+            placeholder="0x..."
           />
 
+          {/* Amount Input */}
+          <AmountInput
+            amount={amount}
+            onAmountChange={(value) => {
+              handleStateChange({ 
+                amount: value,
+                error: '' 
+              });
+            }}
+            onSetMax={() => {
+              handleStateChange({ 
+                amount: selectedToken.balance,
+                error: '' 
+              });
+            }}
+            token={selectedToken}
+          />
+
+          {/* Error Display */}
           {error && <SecurityNotice type="error">{error}</SecurityNotice>}
 
+          {/* Submit Button */}
           <Button
             type="submit"
-            disabled={isLoading || !formData.amount || !formData.toAddress}
+            disabled={isLoading || !amount || !toAddress}
             className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50"
           >
-            {isLoading ? 'Sending...' : 'Send'}
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                <span>Sending...</span>
+              </div>
+            ) : (
+              `Send ${selectedToken?.symbol}`
+            )}
           </Button>
         </form>
       </Card>
+
+      {/* Security Notice */}
+      <SecurityNotice type="warning" title="Transaction Security">
+        <ul className="space-y-1 text-sm">
+          <li>• Always verify the recipient's address before sending</li>
+          <li>• Transactions cannot be reversed once confirmed</li>
+          <li>• Make sure you have enough ETH for gas fees</li>
+        </ul>
+      </SecurityNotice>
     </div>
   );
 }

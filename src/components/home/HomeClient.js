@@ -1,14 +1,10 @@
 // src/components/home/HomeClient.js
 'use client';
 
-import dynamic from 'next/dynamic';
+import { Hero } from './Hero';
 import { WalletActions } from './WalletActions';
 import { TokenSection } from './TokenSection';
 import { FeaturesSection } from './FeaturesSection';
-
-const Hero = dynamic(() => import('./Hero').then(mod => mod.Hero), {
-  ssr: false
-});
 
 export function HomeClient() {
   return (

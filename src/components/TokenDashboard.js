@@ -5,8 +5,11 @@ import { Card } from './ui/Card';
 import { ExternalLink } from 'lucide-react';
 import { formatNumber, formatCryptoAmount } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useWallet } from '@/hooks/useWallet';
 
-export function TokenDashboard({ tokens, loading }) {
+export function TokenDashboard() {
+  const { tokens, loading } = useWallet();
+
   if (loading) {
     return (
       <div className="grid gap-4 animate-pulse">
@@ -52,7 +55,15 @@ function TokenRow({ token, delay }) {
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
             {icon ? (
-              <img src={icon} alt={name} className="w-full h-full object-cover" />
+              <img 
+                src={icon} 
+                alt={name} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="50">${symbol[0]}</text></svg>`;
+                }}
+              />
             ) : (
               <span className="text-lg">{symbol[0]}</span>
             )}
@@ -90,7 +101,10 @@ function TokenRow({ token, delay }) {
                   rel="noopener noreferrer"
                   className="p-2 hover:bg-muted rounded-full transition-colors"
                 >
-                  <ExternalLink size={16} className="text-muted-foreground hover:text-foreground" />
+                  <ExternalLink 
+                    size={16} 
+                    className="text-muted-foreground hover:text-foreground" 
+                  />
                 </a>
               )}
             </div>

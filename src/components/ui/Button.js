@@ -1,7 +1,7 @@
 // src/components/ui/Button.js
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styles';
 import { LoadingSpinner } from './Loading';
 
 const variants = {
